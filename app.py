@@ -239,9 +239,8 @@ def health():
 
 
 # ── Initialization ─────────────────────────────────────────────────────────────
-# These fire at module level or inside Gunicorn worker startup
+# This fires once in Gunicorn (with --preload) or on dev server start
 db.init_db()
-ocr_module.warmup()
 
 # ── Entry point ────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
