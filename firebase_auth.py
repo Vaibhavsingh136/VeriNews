@@ -27,11 +27,18 @@ def _init_firebase():
             os.path.join(os.path.dirname(__file__), "firebase_service_account.json")
         )
 
+        logger.info(f"[Auth] Attempting to load service account from: {service_account_path}")
+
         if not os.path.exists(service_account_path):
-            logger.warning(
-                "[Auth] firebase_service_account.json not found. "
-                "Download it from Firebase Console → Project Settings → Service Accounts."
+            logger.error(
+                f"[Auth] Firebase service account NOT FOUND at: {service_account_path}. "
+                "Ensure you have uploaded it as a 'Secret File' on Render and set FIREBASE_SA_PATH."
             )
+            return
+
+        # Check if file is empty
+        if os.path.getsize(service_account_path) == 0:
+            logger.error(f"[Auth] Firebase service account file is EMPTY at: {service_account_path}")
             return
 
         if not firebase_admin._apps:
@@ -39,10 +46,10 @@ def _init_firebase():
             firebase_admin.initialize_app(cred)
 
         _firebase_initialized = True
-        logger.info("[Auth] Firebase Admin SDK initialised.")
+        logger.info("[Auth] Firebase Admin SDK successfully initialised.")
 
-    except Exception:
-        logger.exception("[Auth] Failed to initialise Firebase Admin SDK.")
+    except Exception as e:
+        logger.error(f"[Auth] Failed to initialise Firebase Admin SDK: {str(e)}")
 
 
 _init_firebase()
@@ -53,16 +60,20 @@ _init_firebase()
 def verify_token(id_token: str) -> dict | None:
     """
     Verify a Firebase ID token.
-
-    Returns decoded token dict (contains uid, email, etc.) on success,
-    or None on failure.
     """
+    if not _firebase_initialized:
+        # Try initializing one last time if it failed at startup
+        _init_firebase()
+        if not _firebase_initialized:
+            logger.error("[Auth] Cannot verify token: Firebase Admin SDK not initialised.")
+            return None
+
     try:
         from firebase_admin import auth
         decoded = auth.verify_id_token(id_token)
         return decoded
     except Exception as e:
-        logger.warning(f"[Auth] Token verification failed: {e}")
+        logger.warning(f"[Auth] Token verification failed: {str(e)}")
         return None
 
 
