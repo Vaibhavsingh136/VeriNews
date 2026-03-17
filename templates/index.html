@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block title %}VeriNews — Detect Misinformation with AI{% endblock %}
+
+{% block content %}
+<!-- ── Hero Section ─────────────────────────────────────────────────────── -->
+<section class="hero" aria-labelledby="hero-heading">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      AI-Powered Analysis
+    </div>
+    <h1 id="hero-heading" class="hero-title">
+      Can You <span class="gradient-text">Trust</span><br/>That News?
+    </h1>
+    <p class="hero-subtitle">
+      VeriNews uses an ensemble of machine learning models to assess the credibility
+      of news content — text, images, or URLs — instantly.
+    </p>
+    <div class="hero-stats" aria-label="Platform statistics">
+      <div class="stat-item">
+        <span class="stat-value">2</span>
+        <span class="stat-label">ML Models</span>
+      </div>
+      <div class="stat-divider" aria-hidden="true"></div>
+      <div class="stat-item">
+        <span class="stat-value">3</span>
+        <span class="stat-label">Input Types</span>
+      </div>
+      <div class="stat-divider" aria-hidden="true"></div>
+      <div class="stat-item">
+        <span class="stat-value">1</span>
+        <span class="stat-label">Ensemble Vote</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Analysis Card ─────────────────────────────────────────────────────── -->
+<section class="analyzer-section" aria-labelledby="analyzer-heading">
+  <div class="analyzer-card glass-card">
+
+    {% if not models_ready %}
+    <div class="models-warning" role="alert">
+      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+      <div>
+        <strong>Models not trained yet.</strong>
+        Run <code>python train_models.py</code> in the project directory to enable analysis.
+      </div>
+    </div>
+    {% endif %}
+
+    <h2 id="analyzer-heading" class="analyzer-title">Analyze Content</h2>
+    <p class="analyzer-subtitle">Choose how you want to submit news content for analysis.</p>
+
+    <!-- Tab selector -->
+    <div class="tab-group" role="tablist" aria-label="Input type selection">
+      <button class="tab-btn active" role="tab" aria-selected="true"
+              aria-controls="panel-text" id="tab-text" data-tab="text">
+        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+        Text
+      </button>
+      <button class="tab-btn" role="tab" aria-selected="false"
+              aria-controls="panel-image" id="tab-image" data-tab="image">
+        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+        Screenshot
+      </button>
+      <button class="tab-btn" role="tab" aria-selected="false"
+              aria-controls="panel-url" id="tab-url" data-tab="url">
+        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"/></svg>
+        URL
+      </button>
+    </div>
+
+    <!-- ── Text Panel ─────────────────────────────────────────────────── -->
+    <div id="panel-text" class="tab-panel active" role="tabpanel" aria-labelledby="tab-text">
+      <form method="POST" action="{{ url_for('analyze') }}" id="form-text" novalidate>
+        <input type="hidden" name="input_type" value="text" />
+        <div class="form-group">
+          <label for="news_text" class="form-label">News Content</label>
+          <textarea
+            id="news_text"
+            name="news_text"
+            class="form-textarea"
+            placeholder="Paste or type your news article, headline, or social media post here..."
+            rows="7"
+            required
+            minlength="20"
+            aria-describedby="text-hint"
+          ></textarea>
+          <p id="text-hint" class="form-hint">Minimum 20 characters. The more text, the more accurate the analysis.</p>
+        </div>
+        <button type="submit" class="btn-analyze" id="btn-text-submit" {% if not models_ready %}disabled{% endif %}>
+          <span class="btn-text">Analyze Content</span>
+          <span class="btn-loader" aria-hidden="true"></span>
+          <svg class="btn-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </form>
+    </div>
+
+    <!-- ── Image Panel ──────────────────────────────────────────────── -->
+    <div id="panel-image" class="tab-panel" role="tabpanel" aria-labelledby="tab-image" hidden>
+      <form method="POST" action="{{ url_for('analyze') }}" enctype="multipart/form-data" id="form-image" novalidate>
+        <input type="hidden" name="input_type" value="image" />
+        <div class="form-group">
+          <label for="image_file" class="form-label">Upload Screenshot</label>
+          <div class="dropzone" id="dropzone" role="button" tabindex="0"
+               aria-label="Click or drag to upload a screenshot image">
+            <input type="file" id="image_file" name="image_file"
+                   accept=".png,.jpg,.jpeg,.gif,.bmp,.webp,.tiff"
+                   class="dropzone-input" required />
+            <div class="dropzone-content" id="dropzone-content">
+              <svg class="dropzone-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke="#2B7574" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <p class="dropzone-label">Drag &amp; drop screenshot here</p>
+              <p class="dropzone-sub">or <span class="dropzone-link">browse files</span></p>
+              <p class="dropzone-formats">PNG, JPG, JPEG, WEBP up to 16 MB</p>
+            </div>
+            <div class="dropzone-preview" id="dropzone-preview" hidden>
+              <img id="preview-img" src="" alt="Preview" class="preview-image" />
+              <p id="preview-name" class="preview-name"></p>
+            </div>
+          </div>
+          <p class="form-hint">EasyOCR will extract text from your screenshot for analysis.</p>
+          <p id="ocr-status-msg" class="form-hint ocr-loading">⏳ OCR model is loading in background…</p>
+        </div>
+        <button type="submit" class="btn-analyze" id="btn-image-submit" disabled>
+          <span class="btn-text">Extract &amp; Analyze</span>
+          <span class="btn-loader" aria-hidden="true"></span>
+          <svg class="btn-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </form>
+    </div>
+
+    <!-- ── URL Panel ────────────────────────────────────────────────── -->
+    <div id="panel-url" class="tab-panel" role="tabpanel" aria-labelledby="tab-url" hidden>
+      <form method="POST" action="{{ url_for('analyze') }}" id="form-url" novalidate>
+        <input type="hidden" name="input_type" value="url" />
+        <div class="form-group">
+          <label for="news_url" class="form-label">Article or Post URL</label>
+          <div class="url-input-wrap">
+            <svg class="url-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"/></svg>
+            <input type="url" id="news_url" name="news_url" class="form-input url-input"
+                   placeholder="https://example.com/article"
+                   required aria-describedby="url-hint" />
+          </div>
+          <p id="url-hint" class="form-hint">Supports news articles, blog posts, and public web pages.</p>
+        </div>
+        <button type="submit" class="btn-analyze" id="btn-url-submit" {% if not models_ready %}disabled{% endif %}>
+          <span class="btn-text">Fetch &amp; Analyze</span>
+          <span class="btn-loader" aria-hidden="true"></span>
+          <svg class="btn-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </form>
+    </div>
+
+  </div><!-- /analyzer-card -->
+</section>
+
+<!-- ── How It Works ────────────────────────────────────────────────────── -->
+<section class="how-section" aria-labelledby="how-heading">
+  <div class="how-inner">
+    <h2 id="how-heading" class="section-title">How It Works</h2>
+    <p class="section-subtitle">A multi-stage AI pipeline processes your content in seconds.</p>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number" aria-hidden="true">01</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 7.5h-.75A2.25 2.25 0 004.5 9.75v7.5a2.25 2.25 0 002.25 2.25h7.5a2.25 2.25 0 002.25-2.25v-7.5a2.25 2.25 0 00-2.25-2.25h-.75m0-3l-3-3m0 0l-3 3m3-3v11.25m6-2.25h.75a2.25 2.25 0 012.25 2.25v7.5a2.25 2.25 0 01-2.25 2.25h-7.5a2.25 2.25 0 01-2.25-2.25v-.75"/></svg>
+        </div>
+        <h3 class="step-title">Submit Content</h3>
+        <p class="step-desc">Paste text, upload a screenshot, or enter a URL — we handle all three.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number" aria-hidden="true">02</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1 1 .03 2.7-1.388 2.41l-6.4-1.28a3 3 0 00-1.826.364L8 19.5"/></svg>
+        </div>
+        <h3 class="step-title">AI Preprocessing</h3>
+        <p class="step-desc">Text is cleaned, stop words removed, and stemmed for optimal ML performance.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number" aria-hidden="true">03</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 01-1.125-1.125v-3.75zM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 01-1.125-1.125v-8.25zM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 01-1.125-1.125v-2.25z"/></svg>
+        </div>
+        <h3 class="step-title">Dual ML Analysis</h3>
+        <p class="step-desc">Logistic Regression and Naive Bayes independently assess TF-IDF feature vectors.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number" aria-hidden="true">04</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h3 class="step-title">Ensemble Verdict</h3>
+        <p class="step-desc">A majority voting ensemble combines predictions for a final confidence-scored result.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

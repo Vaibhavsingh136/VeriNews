@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+{% block title %}Sign In — VeriNews{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+  <div class="auth-glow" aria-hidden="true"></div>
+
+  <div class="auth-card glass-card">
+
+    <!-- Logo above card -->
+    <div class="auth-logo">
+      <svg width="44" height="44" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 3L4 10V21C4 29.8 11.2 38.1 20 40C28.8 38.1 36 29.8 36 21V10L20 3Z" fill="#2B7574" opacity="0.2" />
+        <path d="M20 3L4 10V21C4 29.8 11.2 38.1 20 40C28.8 38.1 36 29.8 36 21V10L20 3Z" stroke="#2B7574"
+          stroke-width="2" stroke-linejoin="round" />
+        <path d="M13 20.5L18 25.5L27 16" stroke="#2B7574" stroke-width="2.5" stroke-linecap="round"
+          stroke-linejoin="round" />
+      </svg>
+    </div>
+
+    <h1 class="auth-title">Welcome Back</h1>
+    <p class="auth-subtitle">Sign in to access VeriNews AI analysis</p>
+
+    <!-- Firebase error banner -->
+    <div id="auth-error" class="auth-error" role="alert" hidden>
+      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd"
+          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+          clip-rule="evenodd" />
+      </svg>
+      <span id="auth-error-msg"></span>
+    </div>
+
+    <!-- Email / Password form -->
+    <form id="login-form" novalidate>
+      <div class="form-group">
+        <label for="email" class="form-label">Email address</label>
+        <input type="email" id="email" class="form-input" placeholder="you@example.com" autocomplete="email" required />
+      </div>
+      <div class="form-group" style="margin-bottom: 8px;">
+        <label for="password" class="form-label">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="password" class="form-input" placeholder="••••••••" autocomplete="current-password"
+            required />
+          <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Show password">
+            <svg id="pw-eye" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+              <path fill-rule="evenodd"
+                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="auth-links">
+        <button type="button" id="forgot-btn" class="link-btn">Forgot password?</button>
+      </div>
+
+      <button type="submit" class="btn-analyze" id="btn-signin" style="margin-top: 20px;">
+        <span class="btn-text">Sign In</span>
+        <span class="btn-loader" aria-hidden="true"></span>
+        <svg class="btn-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd"
+            d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+            clip-rule="evenodd" />
+        </svg>
+      </button>
+    </form>
+
+    <!-- Divider -->
+    <div class="auth-divider"><span>or continue with</span></div>
+
+    <!-- Google Sign-In -->
+    <button id="btn-google" class="btn-google" type="button">
+      <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true">
+        <path fill="#EA4335"
+          d="M24 9.5c3.5 0 6.4 1.2 8.7 3.2l6.5-6.5C35.3 2.7 30 .5 24 .5 14.8.5 7 6.1 3.5 14l7.6 5.9C12.9 14 18 9.5 24 9.5z" />
+        <path fill="#4285F4"
+          d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 6.9-9.9 7.1-17z" />
+        <path fill="#FBBC05"
+          d="M11.1 28.6A14.8 14.8 0 019.5 24c0-1.6.3-3.2.7-4.6L2.6 13.5A23.5 23.5 0 00.5 24c0 3.8.9 7.3 2.5 10.5l8.1-5.9z" />
+        <path fill="#34A853"
+          d="M24 47.5c6 0 11-2 14.7-5.3l-7.5-5.8c-2 1.4-4.6 2.1-7.2 2.1-6 0-11.1-4-12.9-9.5l-7.7 5.9C7 41.9 14.9 47.5 24 47.5z" />
+        <path fill="none" d="M0 0h48v48H0z" />
+      </svg>
+      Continue with Google
+    </button>
+
+    <!-- Register link -->
+    <p class="auth-register">
+      Don't have an account?
+      <button type="button" id="show-register" class="link-btn">Create one</button>
+    </p>
+
+    <!-- Register form (hidden by default) -->
+    <div id="register-section" hidden>
+      <div class="auth-divider"><span>create account</span></div>
+      <form id="register-form" novalidate>
+        <div class="form-group">
+          <label for="reg-name" class="form-label">Display name</label>
+          <input type="text" id="reg-name" class="form-input" placeholder="Your name" required />
+        </div>
+        <div class="form-group">
+          <label for="reg-email" class="form-label">Email address</label>
+          <input type="email" id="reg-email" class="form-input" placeholder="you@example.com" required />
+        </div>
+        <div class="form-group">
+          <label for="reg-password" class="form-label">Password</label>
+          <input type="password" id="reg-password" class="form-input" placeholder="At least 6 characters" required
+            minlength="6" />
+        </div>
+        <button type="submit" class="btn-analyze" id="btn-register">
+          <span class="btn-text">Create Account</span>
+          <span class="btn-loader" aria-hidden="true"></span>
+          <svg class="btn-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd"
+              d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+              clip-rule="evenodd" />
+          </svg>
+        </button>
+      </form>
+    </div>
+
+  </div><!-- /auth-card -->
+</section>
+
+<!-- ── Firebase JS SDK ────────────────────────────────────────────────────── -->
+<!-- ── Plain JS: UI interactions (runs even if Firebase fails) ────────────── -->
+<script>
+  // Helpers — defined globally so the Firebase module can call them too
+  function showAuthError(msg) {
+    const el = document.getElementById('auth-error');
+    const txt = document.getElementById('auth-error-msg');
+    if (el && txt) { txt.textContent = msg; el.removeAttribute('hidden'); }
+  }
+  function hideAuthError() {
+    const el = document.getElementById('auth-error');
+    if (el) el.setAttribute('hidden', '');
+  }
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.classList.toggle('loading', loading);
+    btn.disabled = loading;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+
+    // ── Show / hide register section ────────────────────────────────────────
+    const showRegBtn = document.getElementById('show-register');
+    const regSection = document.getElementById('register-section');
+    if (showRegBtn && regSection) {
+      showRegBtn.addEventListener('click', () => {
+        const isHidden = regSection.hasAttribute('hidden');
+        regSection.toggleAttribute('hidden', !isHidden);
+        showRegBtn.textContent = isHidden ? 'Back to sign in' : 'Create one';
+        hideAuthError();
+      });
+    }
+
+    // ── Password visibility toggle ──────────────────────────────────────────
+    const pwToggle = document.getElementById('pw-toggle');
+    const pwInput = document.getElementById('password');
+    if (pwToggle && pwInput) {
+      pwToggle.addEventListener('click', () => {
+        pwInput.type = pwInput.type === 'password' ? 'text' : 'password';
+      });
+    }
+
+  });
+</script>
+
+<!-- ── Firebase JS SDK (module) ───────────────────────────────────────── -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signInWithPopup,
+    GoogleAuthProvider,
+    sendPasswordResetEmail,
+    updateProfile
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  // ── Firebase config — paste your values from Firebase Console ─────────────
+  // Firebase Console → Project Settings → Your apps → Web app → Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyACXpy3FtWE35JBwvguI0_vBSO8JvmLD10",
+    authDomain: "studio-1425282444-d093b.firebaseapp.com",
+    projectId: "studio-1425282444-d093b",
+    storageBucket: "studio-1425282444-d093b.firebasestorage.app",
+    messagingSenderId: "1072017893816",
+    appId: "1:1072017893816:web:4ce5aeb8b459b3fbdd074d"
+  };
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // Guard: detect placeholder config and show a helpful message
+  if (firebaseConfig.apiKey.startsWith("REPLACE_")) {
+    showAuthError("Firebase is not configured yet. Open login.html and paste your Firebase config.");
+    document.querySelectorAll(".btn-analyze, #btn-google").forEach(b => b.disabled = true);
+    throw new Error("Firebase config not set — stopping module.");
+  }
+
+  let auth, google;
+  try {
+    const fbApp = initializeApp(firebaseConfig);
+    auth = getAuth(fbApp);
+    google = new GoogleAuthProvider();
+  } catch (e) {
+    showAuthError("Firebase initialisation failed: " + e.message);
+    throw e;
+  }
+
+  function friendlyError(code) {
+    const map = {
+      "auth/invalid-email": "Invalid email address.",
+      "auth/user-not-found": "No account found with this email.",
+      "auth/wrong-password": "Incorrect password.",
+      "auth/invalid-credential": "Email or password is incorrect.",
+      "auth/email-already-in-use": "An account already exists with this email.",
+      "auth/weak-password": "Password must be at least 6 characters.",
+      "auth/operation-not-allowed": "Email/password sign-in is not enabled. Enable it in Firebase Console → Authentication → Sign-in method.",
+      "auth/too-many-requests": "Too many attempts. Please wait a moment.",
+      "auth/popup-closed-by-user": "Google sign-in was cancelled.",
+      "auth/network-request-failed": "Network error. Check your connection.",
+      "auth/api-key-not-valid": "Invalid Firebase API key. Check your config.",
+    };
+    return map[code] || `Sign-in failed (${code}). Please try again.`;
+  }
+
+  async function createSession(user) {
+    const token = await user.getIdToken(/* forceRefresh */ true);
+    const res = await fetch("/auth/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_token: token })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      window.location.href = data.next || "/";
+    } else {
+      showAuthError("Session creation failed. Please try again.");
+    }
+  }
+
+  // ── Email / Password sign-in ─────────────────────────────────────────────
+  document.getElementById("login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    hideAuthError();
+    setLoading("btn-signin", true);
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      await createSession(cred.user);
+    } catch (err) {
+      showAuthError(friendlyError(err.code));
+      setLoading("btn-signin", false);
+    }
+  });
+
+  // ── Google sign-in ───────────────────────────────────────────────────────
+  document.getElementById("btn-google").addEventListener("click", async () => {
+    hideAuthError();
+    try {
+      const cred = await signInWithPopup(auth, google);
+      await createSession(cred.user);
+    } catch (err) {
+      if (err.code !== "auth/popup-closed-by-user") {
+        showAuthError(friendlyError(err.code));
+      }
+    }
+  });
+
+  // ── Password reset ───────────────────────────────────────────────────────
+  document.getElementById("forgot-btn").addEventListener("click", async () => {
+    const email = document.getElementById("email").value.trim();
+    if (!email) { showAuthError("Enter your email first, then click Forgot password."); return; }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      hideAuthError();
+      alert("Password reset email sent! Check your inbox.");
+    } catch (err) {
+      showAuthError(friendlyError(err.code));
+    }
+  });
+
+  // ── Create new account ───────────────────────────────────────────────────
+  document.getElementById("register-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    hideAuthError();
+    setLoading("btn-register", true);
+    const name = document.getElementById("reg-name").value.trim();
+    const email = document.getElementById("reg-email").value.trim();
+    const password = document.getElementById("reg-password").value;
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      if (name) await updateProfile(cred.user, { displayName: name });
+      await createSession(cred.user);
+    } catch (err) {
+      showAuthError(friendlyError(err.code));
+      setLoading("btn-register", false);
+    }
+  });
+</script>
+{% endblock %}
