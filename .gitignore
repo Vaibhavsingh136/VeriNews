@@ -1,0 +1,28 @@
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Secrets — NEVER commit these
+.env
+firebase_service_account.json
+
+# SQLite database (use managed DB in production)
+verinews.db
+
+# Uploaded files (user content, transient)
+uploads/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# ML model files (large binary — re-train on server or use object storage)
+models/*.pkl
+
+# IDE and OS files
+.idea/
+.vscode/
+*.DS_Store
+Thumbs.db
