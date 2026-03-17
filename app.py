@@ -11,7 +11,6 @@ import database as db
 import preprocessing
 import ml_models
 import ocr_module
-import firebase_auth as fauth
 from ocr_module import extract_text as ocr_extract
 from url_fetcher import fetch_url
 
@@ -40,15 +39,12 @@ def allowed_file(filename: str) -> bool:
 # ── Routes ────────────────────────────────────────────────────────────────────
 
 @app.route("/")
-@fauth.login_required
 def index():
     models_ready = ml_models.models_exist()
-    return render_template("index.html", models_ready=models_ready,
-                           user=fauth.current_user())
+    return render_template("index.html", models_ready=models_ready)
 
 
 @app.route("/analyze", methods=["POST"])
-@fauth.login_required
 def analyze():
     input_type = request.form.get("input_type", "text")
     raw_text   = ""
@@ -186,39 +182,6 @@ def analyze():
         return redirect(url_for("index"))
 
 
-# ── Auth routes ────────────────────────────────────────────────────────────────
-@app.route("/login")
-def login():
-    if fauth.current_user():
-        return redirect(url_for("index"))
-    return render_template("login.html", user=None)
-
-
-@app.route("/auth/session", methods=["POST"])
-def auth_session():
-    """Receive Firebase ID token from JS, verify it, set server session."""
-    data     = request.get_json(silent=True) or {}
-    id_token = data.get("id_token", "")
-
-    if not id_token:
-        return jsonify({"error": "No token provided."}), 400
-
-    decoded = fauth.verify_token(id_token)
-    if not decoded:
-        return jsonify({"error": "Invalid or expired token."}), 401
-
-    fauth.set_user_session(decoded)
-    next_url = session.pop("next", None) or url_for("index")
-    logger.info(f"[Auth] User signed in: {decoded.get('email')}")
-    return jsonify({"ok": True, "next": next_url})
-
-
-@app.route("/logout")
-def logout():
-    email = session.get("email", "")
-    fauth.clear_session()
-    logger.info(f"[Auth] User signed out: {email}")
-    return redirect(url_for("login"))
 
 
 # ── OCR status check ──────────────────────────────────────────────────────────
