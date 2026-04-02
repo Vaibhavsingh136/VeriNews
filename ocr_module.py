@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 if platform.system() == "Windows":
     # Default Windows installation path
-    TESSERACT_CMD = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    TESSERACT_CMD = r"C:/Program Files/Tesseract-OCR/tesseract.exe"
 else:
     # On Linux/Docker, it's typically in the PATH
     TESSERACT_CMD = "tesseract"
