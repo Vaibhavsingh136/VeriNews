@@ -83,7 +83,7 @@ def analyze():
             # OCR extraction
             ocr_result = ocr_extract(filepath)
             if not ocr_result["success"]:
-                db.log_solution(0, media_id=media_id, fetch_status="ocr_failed",
+                db.log_solution(None, media_id=media_id, fetch_status="ocr_failed",
                                 metadata={"error": ocr_result["error"]})
                 flash(f"OCR extraction failed: {ocr_result['error']}", "error")
                 return redirect(url_for("index"))
@@ -108,7 +108,7 @@ def analyze():
             )
 
             if fetch_result["fetch_status"] == "failed":
-                db.log_solution(0, url_id=url_id, fetch_status="failed",
+                db.log_solution(None, url_id=url_id, fetch_status="failed",
                                 metadata={"error": fetch_result.get("error")})
                 flash(f"Could not retrieve content from that URL: {fetch_result.get('error', 'Unknown error')}", "error")
                 return redirect(url_for("index"))
